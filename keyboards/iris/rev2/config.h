@@ -72,6 +72,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // EEPROM usage
 
+#undef RAW_ENABLE
+#undef DYNAMIC_KEYMAP_ENABLE
+
+
 // TODO: refactor with new user EEPROM code (coming soon)
 #define EEPROM_MAGIC 0x451F
 #define EEPROM_MAGIC_ADDR 32
