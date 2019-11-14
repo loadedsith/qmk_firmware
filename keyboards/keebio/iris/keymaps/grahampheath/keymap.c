@@ -39,7 +39,7 @@ enum custom_keycodes {
   THMBUP,
   TOUNGE,
   THANKS,
-  WINK
+  WINK,
 };
 
 #define CTL_ESC MT(MOD_LCTL, KC_ESC)  // Hold for Left Ctrl, Tap for GraveESC
