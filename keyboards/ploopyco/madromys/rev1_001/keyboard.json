@@ -7,9 +7,9 @@
         "direct": [
             ["GP15", "GP17", "GP19", "GP21", "GP23", "GP11"]
         ]
-    },
+    },"menus": ["qmk_rgb_matrix" ],
     "rgblight": {
-        "led_count": 3,
+        "led_count": 2,
         "max_brightness": 40,
         "animations": {
             "breathing": true,

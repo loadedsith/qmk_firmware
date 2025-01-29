@@ -30,3 +30,18 @@
 #define SPI_SCK_PIN GP2
 #define SPI_MISO_PIN GP0
 #define SPI_MOSI_PIN GP7
+
+/* RGB settings */        
+// #define WS2812_DI_PIN GP12     // LED data pin 
+#ifdef WS2812_DI_PIN
+#define WS2812_PIO_USE_PIO1
+#define RGBLIGHT_LED_COUNT 2
+#define RGBLIGHT_LAYERS
+#define RGBLIGHT_DEFAULT_HUE 180     // 180 violet
+#define RGBLIGHT_DEFAULT_VAL 5       // value (brightness)
+#define RGBLIGHT_SLEEP            // If defined, RGB lighting will be switched off when host goes to sleep
+#define RGBLIGHT_LAYERS_RETAIN_VAL     // lighting layers retain the current brightness
+#define RGBLIGHT_EFFECT_BREATHING
+// #define RGBLIGHT_ANIMATIONS
+// #define RGBLIGHT_EFFECT_RAINBOW_MOOD             
+#endif
