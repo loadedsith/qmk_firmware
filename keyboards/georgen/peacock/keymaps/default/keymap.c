@@ -87,6 +87,52 @@ bool shutdown_kb(bool jump_to_bootloader) {
 report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
     mouse_report = pointing_device_task_user(mouse_report);
     
+    // Apply software smoothing using exponential moving average
+    static int16_t smoothed_x = 0;
+    static int16_t smoothed_y = 0;
+    static int16_t accumulated_x = 0;
+    static int16_t accumulated_y = 0;
+    
+    // Apply sensitivity divisor
+    if (mouse_report.x != 0 || mouse_report.y != 0) {
+        mouse_report.x /= POINTING_DEVICE_SENSITIVITY_DIVISOR;
+        mouse_report.y /= POINTING_DEVICE_SENSITIVITY_DIVISOR;
+        
+        // Exponential moving average smoothing
+        // smoothed = (alpha * new + (255 - alpha) * old) / 255
+        smoothed_x = ((int32_t)POINTING_DEVICE_SMOOTHING_ALPHA * mouse_report.x + (255 - POINTING_DEVICE_SMOOTHING_ALPHA) * smoothed_x) / 255;
+        smoothed_y = ((int32_t)POINTING_DEVICE_SMOOTHING_ALPHA * mouse_report.y + (255 - POINTING_DEVICE_SMOOTHING_ALPHA) * smoothed_y) / 255;
+        
+        // Accumulate small movements to filter out jitter when finger is stationary
+        accumulated_x += smoothed_x;
+        accumulated_y += smoothed_y;
+        
+        // Only report movement if it exceeds the threshold
+        int16_t abs_x = accumulated_x < 0 ? -accumulated_x : accumulated_x;
+        int16_t abs_y = accumulated_y < 0 ? -accumulated_y : accumulated_y;
+        
+        if (abs_x >= POINTING_DEVICE_MOVEMENT_THRESHOLD || abs_y >= POINTING_DEVICE_MOVEMENT_THRESHOLD) {
+            mouse_report.x = accumulated_x;
+            mouse_report.y = accumulated_y;
+            accumulated_x = 0;
+            accumulated_y = 0;
+        } else {
+            // Movement too small, don't report it (filters out jitter)
+            // Decay accumulated values to prevent buildup from random noise
+            // This ensures random jitter doesn't accumulate over time
+            accumulated_x = accumulated_x * 3 / 4;  // Decay by 25%
+            accumulated_y = accumulated_y * 3 / 4;
+            mouse_report.x = 0;
+            mouse_report.y = 0;
+        }
+    } else {
+        // Reset smoothed and accumulated values when no input to prevent drift
+        smoothed_x = 0;
+        smoothed_y = 0;
+        accumulated_x = 0;
+        accumulated_y = 0;
+    }
+    
 #if defined(DIGITIZER_ENABLE) && defined(DIGITIZER_FINGER_COUNT) && defined(DIGITIZER_CONTACT_COUNT)
     static uint32_t scan_time = 0;
     static int last_contacts = 0;
